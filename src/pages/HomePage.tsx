@@ -1,44 +1,133 @@
 import { Link } from "react-router-dom";
 import supabase from "../supabase";
 import { useSession } from "../context/SessionContext";
+import { HoverCard, HoverCardTrigger, HoverCardContent } from "@radix-ui/react-hover-card";
+import { Button } from "../components/ui/button";
 
 const HomePage = () => {
   const { session } = useSession();
   return (
-    <main>
-      <section className="main-container">
-        <h1 className="header-text">React Supabase Auth Template</h1>
-        <p>Current User : {session?.user.email || "None"}</p>
-        {session ? (
-          <button onClick={() => supabase.auth.signOut()}>Sign Out</button>
-        ) : (
-          <Link to="/auth/sign-in">Sign In</Link>
-        )}
-        <Link to="/protected">Protected Page 🛡️</Link>
-        <div id="divider"></div>
-        <Link
-          to="https://github.com/mmvergara/react-supabase-auth-template"
-          target="_blank"
-          rel="noreferrer noopener"
-          id="github-repo-link"
-        >
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            x="0px"
-            y="0px"
-            width="30"
-            height="50"
-            viewBox="0 0 64 64"
-          >
-            <path
-              fill="#fff"
-              d="M32 6C17.641 6 6 17.641 6 32c0 12.277 8.512 22.56 19.955 25.286-.592-.141-1.179-.299-1.755-.479V50.85c0 0-.975.325-2.275.325-3.637 0-5.148-3.245-5.525-4.875-.229-.993-.827-1.934-1.469-2.509-.767-.684-1.126-.686-1.131-.92-.01-.491.658-.471.975-.471 1.625 0 2.857 1.729 3.429 2.623 1.417 2.207 2.938 2.577 3.721 2.577.975 0 1.817-.146 2.397-.426.268-1.888 1.108-3.57 2.478-4.774-6.097-1.219-10.4-4.716-10.4-10.4 0-2.928 1.175-5.619 3.133-7.792C19.333 23.641 19 22.494 19 20.625c0-1.235.086-2.751.65-4.225 0 0 3.708.026 7.205 3.338C28.469 19.268 30.196 19 32 19s3.531.268 5.145.738c3.497-3.312 7.205-3.338 7.205-3.338.567 1.474.65 2.99.65 4.225 0 2.015-.268 3.19-.432 3.697C46.466 26.475 47.6 29.124 47.6 32c0 5.684-4.303 9.181-10.4 10.4 1.628 1.43 2.6 3.513 2.6 5.85v8.557c-.576.181-1.162.338-1.755.479C49.488 54.56 58 44.277 58 32 58 17.641 46.359 6 32 6zM33.813 57.93C33.214 57.972 32.61 58 32 58 32.61 58 33.213 57.971 33.813 57.93zM37.786 57.346c-1.164.265-2.357.451-3.575.554C35.429 57.797 36.622 57.61 37.786 57.346zM32 58c-.61 0-1.214-.028-1.813-.07C30.787 57.971 31.39 58 32 58zM29.788 57.9c-1.217-.103-2.411-.289-3.574-.554C27.378 57.61 28.571 57.797 29.788 57.9z"
-            ></path>
-          </svg>
-          Github Repository
-        </Link>
-      </section>
-    </main>
+    <div className="min-h-screen bg-[radial-gradient(circle_at_bottom,_var(--tw-gradient-stops))] from-blue-600  to-blue-100  via-purple-400  text-dark relative overflow-hidden">
+      <div className="absolute inset-0 bg-white/30 backdrop-blur-xl z-0"></div>
+      <div className="relative z-10">
+        <header className="w-full bg-white/30 backdrop-blur-sm shadow-lg ring-1 ring-black/5 py-4 px-6 fixed top-0 left-0 right-0 z-50">
+          <div className="container mx-auto flex justify-between items-center">
+            <div className="flex items-center">
+              <h1 className="text-2xl font-bold font-mono mr-4">Bad Habits App</h1>
+            </div>
+            <nav>
+              {session ? (
+                <HoverCard>
+                  <HoverCardTrigger asChild>
+                    <Button variant="link"
+                      className=""
+                      onClick={() => supabase.auth.signOut()}
+                    >
+                      Sign Out
+                    </Button>
+                  </HoverCardTrigger>
+                  <HoverCardContent className="p-4 bg-white/30 backdrop-blur-lg rounded-lg shadow-lg">
+                    <div className="flex items-center space-x-4">
+                      <img
+                        src={session.user.user_metadata.avatar_url}
+                        alt="Profile"
+                        className="w-12 h-12 rounded-full"
+                      />
+                      <div>
+                        <p className="font-semibold">{session.user.user_metadata.full_name}</p>
+                        <p className="text-sm text-gray-500">Joined: {new Date(session.user.created_at).toLocaleDateString()}</p>
+                      </div>
+                    </div>
+                  </HoverCardContent>
+                </HoverCard>
+              ) : (
+                <Link to="/auth/sign-in">
+                  <Button variant="link" className="">
+                    Sign In
+                  </Button>
+                </Link>
+              )}
+            </nav>
+          </div>
+        </header>
+        <main className="container mx-auto px-4 py-32">
+          <div className="max-w-3xl mx-auto text-center">
+            <h1 className="text-6xl font-extrabold mb-6 mt-10 bg-gradient-to-b from-sky-500 via-indigo-500 to-purple-600 bg-clip-text text-transparent">
+              <i>Sprints</i>
+            </h1>
+            <p className="text-xl mb-10 text-violet-800/90">
+              Form new habits quickly, with a gamified method based on teachings
+              from <i>Atomic Habits</i> by James Clear.
+            </p>
+            <div className="flex justify-center float-animation">
+              <div className="group relative">
+                <div className="absolute -inset-1 bg-gradient-to-r from-sky-600 to-fuchsia-500 via-purple-600 rounded-full blur opacity-25 group-hover:opacity-100 transition duration-1000 group-hover:duration-500"></div>
+                <Link to="/new-habit">
+                  <Button variant="default" className="relative px-8 py-4 rounded-full font-bold text-lg flex items-center hover:bg-white hover:text-black transition duration-300">
+                    Get Started
+                  </Button>
+                </Link>
+              </div>
+            </div>
+          </div>
+          <div className="transition-all duration-500 transform"></div>
+        </main>
+        <section className="py-16">
+          <div className="container mx-auto px-4">
+            <h3 className="text-3xl font-bold text-center mb-10 text-white">
+              How It Works
+            </h3>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+              {[
+                {
+                  title: 'Set Your Sprint',
+                  description:
+                    'Create a specific, actionable habit with a simple framework',
+                },
+                {
+                  title: 'Track Progress',
+                  description:
+                    'Log your habit, and receive all the numbers you could ever want',
+                },
+                {
+                  title: 'Earn score',
+                  description:
+                    'Maintain your score, beat personal records, and more',
+                },
+                {
+                  title: 'Stay Accountable',
+                  description:
+                    'Invite an accountability partner, to keep you motivated and on track (and to deal with you if you lose)',
+                },
+              ].map((step, index) => (
+                <div
+                  key={index}
+                  className="bg-white/30 backdrop-blur-sm p-6 rounded-lg text-center transform transition duration-300 hover:scale-105 hover:shadow-xl group shadow-lg ring-1 ring-black/5 "
+                >
+                  <div className="w-12 h-12 bg-transparent ring-2 ring-black/10 text-white rounded-full flex items-center justify-center mx-auto mb-4 text-xl font-bold group-hover:bg-blue-600 group-hover:ring-blue-600/50 transition-colors duration-300">
+                    {index + 1}
+                  </div>
+                  <h4 className="text-xl font-semibold mb-2 text-white group-hover:text-blue-500/80 transition-colors duration-300">
+                    {step.title}
+                  </h4>
+                  <p className="text-white/80 group-hover:text-white transition-colors duration-300">
+                    {step.description}
+                  </p>
+                </div>
+              ))}
+            </div>
+          </div>
+        </section>
+
+        <footer className="bg-dark/80 text-white py-8 backdrop-blur-sm">
+          <div className="container mx-auto px-4 text-center">
+            <p>
+              &copy; 2024 Finn. <i> A PLP project</i>
+            </p>
+          </div>
+        </footer>
+      </div>
+    </div>
   );
 };
 
