@@ -3,6 +3,7 @@ import supabase from "../supabase";
 import { useSession } from "../context/SessionContext";
 import { HoverCard, HoverCardTrigger, HoverCardContent } from "@radix-ui/react-hover-card";
 import { Button } from "../components/ui/button";
+import { Popover, PopoverTrigger, PopoverContent } from "@radix-ui/react-popover";
 
 const HomePage = () => {
   const { session } = useSession();
@@ -17,29 +18,41 @@ const HomePage = () => {
             </div>
             <nav>
               {session ? (
-                <HoverCard>
-                  <HoverCardTrigger asChild>
-                    <Button variant="link"
-                      className=""
-                      onClick={() => supabase.auth.signOut()}
-                    >
-                      Sign Out
+                <div>
+                  <Link to="/dashboard">
+                    <Button variant="link" className="">
+                      Dashboard
                     </Button>
-                  </HoverCardTrigger>
-                  <HoverCardContent className="p-4 bg-white/30 backdrop-blur-lg rounded-lg shadow-lg">
-                    <div className="flex items-center space-x-4">
-                      <img
-                        src={session.user.user_metadata.avatar_url}
-                        alt="Profile"
-                        className="w-12 h-12 rounded-full"
-                      />
-                      <div>
-                        <p className="font-semibold">{session.user.user_metadata.full_name}</p>
-                        <p className="text-sm text-gray-500">Joined: {new Date(session.user.created_at).toLocaleDateString()}</p>
+                  </Link>
+                  <Popover>
+                    <PopoverTrigger asChild>
+                      <Button variant="link" className="">
+                        Profile
+                      </Button>
+                    </PopoverTrigger>
+                    <PopoverContent className="p-4 bg-white/30 backdrop-blur-lg rounded-lg shadow-lg">
+                      <div className="flex items-center space-x-3">
+                        <img
+                          src={session.user.user_metadata.avatar_url}
+                          alt="Profile"
+                          className="w-12 h-12 rounded-full"
+                        />
+                        <div>
+                          <p className="font-semibold">{session.user.user_metadata.full_name}</p>
+                          <p className="text-sm text-gray-500">Joined: {new Date(session.user.created_at).toLocaleDateString()}</p>
+                        </div>
                       </div>
-                    </div>
-                  </HoverCardContent>
-                </HoverCard>
+                      <Button
+                        variant="link"
+                        className="mt-4 text-red-800"
+                        onClick={() => supabase.auth.signOut()}
+                      >
+                        Sign Out
+                      </Button>
+                    </PopoverContent>
+                  </Popover>
+                </div>
+
               ) : (
                 <Link to="/auth/sign-in">
                   <Button variant="link" className="">
