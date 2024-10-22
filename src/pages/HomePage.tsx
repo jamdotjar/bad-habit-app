@@ -54,7 +54,7 @@ const HomePage = () => {
                 </div>
 
               ) : (
-                <Link to="/auth/sign-in">
+                <Link to="/signin">
                   <Button variant="link" className="">
                     Sign In
                   </Button>
