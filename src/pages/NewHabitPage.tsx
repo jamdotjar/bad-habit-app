@@ -1,7 +1,5 @@
 "use client"
 
-import React, { useEffect, useState } from 'react';
-import { useSession } from '../context/SessionContext';
 import supabase from '@/supabase';
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
@@ -10,7 +8,6 @@ import { Button } from "@/components/ui/button";
 import {
     Form,
     FormControl,
-    FormDescription,
     FormField,
     FormItem,
     FormLabel,
@@ -35,7 +32,6 @@ const formSchema = z.object({
 });
 
 const NewHabitPage = () => {
-    const { session } = useSession();
 
     const navigate = useNavigate();
 
@@ -50,7 +46,7 @@ const NewHabitPage = () => {
     });
 
     const onSubmit = async (values: { habitName: string; endDate: string }) => {
-        const { data, error } = await supabase
+        const { error } = await supabase
             .from('habits')
             .insert([
                 {

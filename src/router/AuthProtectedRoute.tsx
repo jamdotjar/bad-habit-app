@@ -1,5 +1,4 @@
 import { Outlet } from "react-router-dom";
-import NotFoundPage from "../pages/404Page";
 import SignInPage from "@/pages/auth/SignInPage";
 import { useSession } from "../context/SessionContext";
 

@@ -1,7 +1,6 @@
 import { Link } from "react-router-dom";
 import supabase from "../supabase";
 import { useSession } from "../context/SessionContext";
-import { HoverCard, HoverCardTrigger, HoverCardContent } from "@radix-ui/react-hover-card";
 import { Button } from "../components/ui/button";
 import { Popover, PopoverTrigger, PopoverContent } from "@radix-ui/react-popover";
 
