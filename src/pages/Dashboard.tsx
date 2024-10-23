@@ -9,8 +9,9 @@ import { Input } from '@/components/ui/input';
 
 const Dashboard = () => {
     const [username, setUsername] = useState<string | undefined>();
-    const [loading, setLoading] = useState(true); // Add loading state
+    const [loading, setLoading] = useState(true);
     const [habits, setHabits] = useState<Habit[]>([]);
+    const [expandedHabit, setExpandedHabit] = useState<number | null>(null);
 
     useEffect(() => {
         const fetchUserData = async () => {
@@ -22,7 +23,6 @@ const Dashboard = () => {
             if (data) {
                 setUsername(data.user?.user_metadata?.full_name || 'User');
             }
-
         };
 
         fetchUserData();
@@ -42,37 +42,6 @@ const Dashboard = () => {
         progress: number;
     };
 
-    const formatHabits = (habits: any[]) => {
-        return habits.map(habit => {
-            if (habit.checkin_dates) {
-                // Proceed with the existing logic
-                return {
-                    ...habit,
-                    checkin_dates_length: habit.checkin_dates.length,
-                };
-            } else {
-                // Handle the case where checkin_dates is null
-                return {
-                    ...habit,
-                    checkin_dates_length: 0, // or any default value
-                };
-            }
-        });
-    };
-
-    const fetchHabitData = async () => {
-        const { data, error } = await supabase.from('habits').select('*');
-        if (error) {
-            console.error('Error fetching habit data:', error);
-            return;
-        }
-        if (data) {
-            const formattedHabits = formatHabits(data);
-            console.log(formattedHabits);
-        }
-        setLoading(false);
-    };
-
     useEffect(() => {
         const fetchHabits = async () => {
             const { data, error } = await supabase.from('habits').select('*');
@@ -84,18 +53,19 @@ const Dashboard = () => {
                 const formattedHabits = data.map((habit: any) => {
                     const totalDays = Math.ceil((new Date(habit.end_date).getTime() - new Date(habit.start_date).getTime()) / (1000 * 60 * 60 * 24));
                     const daysPassed = Math.ceil((new Date().getTime() - new Date(habit.start_date).getTime()) / (1000 * 60 * 60 * 24));
-                    const progress = Math.min((daysPassed / totalDays) * 100, 100); // Ensure progress doesn't exceed 100%
+                    const completedDays = Math.min(daysPassed, totalDays); // Ensure completedDays doesn't exceed totalDays
+                    const progress = Math.min((completedDays / totalDays) * 100, 100); // Ensure progress doesn't exceed 100%
 
                     return {
                         id: habit.id,
                         name: habit.name,
                         description: habit.description || '',
                         totalDays: totalDays,
-                        completedDays: habit.checkin_dates ? habit.checkin_dates.length : 0,
+                        completedDays: completedDays,
                         score: habit.score,
                         streak: 0,
                         record: 0,
-                        average: habit.score / daysPassed,
+                        average: parseFloat((habit.score / daysPassed).toFixed(2)),
                         weeklyTrend: '',
                         progress: progress,
                     };
@@ -103,13 +73,12 @@ const Dashboard = () => {
 
                 setHabits(formattedHabits);
             }
+
+            setLoading(false);
         };
 
         fetchHabits();
-        fetchHabitData();
     }, []);
-
-    const [expandedHabit, setExpandedHabit] = useState<number | null>(null);
 
     const toggleHabit = (id: number) => {
         setExpandedHabit(expandedHabit === id ? null : id);
@@ -118,20 +87,23 @@ const Dashboard = () => {
     if (loading) {
         return <div></div>;
     }
+
+    const columns = 3;
+    const rows = Math.ceil(habits.length / columns);
+
     return (
         <div className="container mx-auto p-4">
             <div className="flex justify-between items-center mb-6">
-                <h1 className="text-2xl font-bold">Habit Dashboard</h1>
-                <Button variant={'outline'}
-                    onClick={() => window.location.href = '/new-habit'}>
-                    <Plus /> Add new habit
+                <h1 className="text-2xl font-bold">{username}'s Habit Dashboard</h1>
+                <Button variant="outline" onClick={() => window.location.href = '/new-habit'}>
+                    <Plus className="mr-2 h-4 w-4" /> Add New Habit
                 </Button>
             </div>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                {Array.from({ length: 3 }).map((_, colIndex) => (
+                {Array.from({ length: columns }).map((_, colIndex) => (
                     <div key={colIndex} className="space-y-4">
-                        {Array.from({ length: Math.ceil(habits.length / 3) }).map((_, rowIndex) => {
-                            const habitIndex = rowIndex * 3 + colIndex;
+                        {Array.from({ length: rows }).map((_, rowIndex) => {
+                            const habitIndex = rowIndex * columns + colIndex;
                             const habit = habits[habitIndex];
                             if (!habit) return null;
 
@@ -199,8 +171,8 @@ const Dashboard = () => {
                     </div>
                 ))}
             </div>
-
         </div>
     );
 };
+
 export default Dashboard;
