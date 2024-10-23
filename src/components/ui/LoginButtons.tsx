@@ -1,4 +1,4 @@
-import React from 'react';
+
 import { Button } from "@/components/ui/button";
 
 const GoogleIcon = ({ size }: { size: string | number }) => (

@@ -95,7 +95,7 @@ const Dashboard = () => {
         <div className="container mx-auto p-4">
             <div className="flex justify-between items-center mb-6">
                 <h1 className="text-2xl font-bold">{username}'s Habit Dashboard</h1>
-                <Button variant="outline" onClick={() => window.location.href = '/new-habit'}>
+                <Button variant="outline">
                     <Plus className="mr-2 h-4 w-4" /> Add New Habit
                 </Button>
             </div>
