@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@radix-ui/react-label";
+import { GoogleLoginButton, GithubLoginButton } from "@/components/ui/LoginButtons"; // Adjust the import path as necessary
 
 const SignInPage = () => {
   const { session } = useSession();
@@ -33,6 +34,16 @@ const SignInPage = () => {
     setStatus("Redirecting to GitHub...");
     const { error } = await supabase.auth.signInWithOAuth({
       provider: 'github',
+    });
+    if (error) {
+      setStatus(`Error: ${error.message}`);
+    }
+  };
+
+  const signInWithGoogle = async () => {
+    setStatus("Redirecting to Google...");
+    const { error } = await supabase.auth.signInWithOAuth({
+      provider: 'google',
     });
     if (error) {
       setStatus(`Error: ${error.message}`);
@@ -71,20 +82,13 @@ const SignInPage = () => {
             </div>
             <Button type="submit" className="w-full">Sign In</Button>
           </form>
-          <div className="mt-4">
-            <Button onClick={signInWithGitHub} variant="outline" className="w-full flex items-center justify-center">
-              Continue with GitHub
-            </Button>
+          <div className="mt-4 space-y-2">
+            <GithubLoginButton onClick={signInWithGitHub} className="w-full" />
+            <GoogleLoginButton onClick={signInWithGoogle} className="w-full" />
           </div>
           {status && <p className="mt-4 text-center text-sm">{status}</p>}
         </CardContent>
         <CardFooter className="flex justify-between">
-          <p className="text-sm text-muted-foreground">
-            Don't have an account?{" "}
-            <Link to="/signup" className="text-primary hover:underline">
-              Sign up
-            </Link>
-          </p>
           <Link to="/" className="text-primary hover:underline">
             Home
           </Link>
