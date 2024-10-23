@@ -1,6 +1,6 @@
 import supabase from '@/supabase';
 import { useEffect, useState } from 'react';
-import { ChevronDown, ChevronUp, Check } from 'lucide-react';
+import { ChevronDown, ChevronUp, Check, Plus } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
@@ -9,6 +9,9 @@ import { Input } from '@/components/ui/input';
 
 const Dashboard = () => {
     const [username, setUsername] = useState<string | undefined>();
+    const [loading, setLoading] = useState(true); // Add loading state
+    const [habits, setHabits] = useState<Habit[]>([]);
+
     useEffect(() => {
         const fetchUserData = async () => {
             const { data, error } = await supabase.auth.getUser();
@@ -19,6 +22,7 @@ const Dashboard = () => {
             if (data) {
                 setUsername(data.user?.user_metadata?.full_name || 'User');
             }
+
         };
 
         fetchUserData();
@@ -37,8 +41,6 @@ const Dashboard = () => {
         weeklyTrend: string;
         progress: number;
     };
-
-    const [habits, setHabits] = useState<Habit[]>([]);
 
     const formatHabits = (habits: any[]) => {
         return habits.map(habit => {
@@ -68,6 +70,7 @@ const Dashboard = () => {
             const formattedHabits = formatHabits(data);
             console.log(formattedHabits);
         }
+        setLoading(false);
     };
 
     useEffect(() => {
@@ -90,10 +93,10 @@ const Dashboard = () => {
                         totalDays: totalDays,
                         completedDays: habit.checkin_dates ? habit.checkin_dates.length : 0,
                         score: habit.score,
-                        streak: 0, // You can calculate streak based on checkin_dates if needed
-                        record: 0, // You can calculate record based on checkin_dates if needed
-                        average: habit.score, // Assuming score is the average
-                        weeklyTrend: '', // You can calculate weekly trend based on checkin_dates if needed
+                        streak: 0,
+                        record: 0,
+                        average: habit.score / daysPassed,
+                        weeklyTrend: '',
                         progress: progress,
                     };
                 });
@@ -112,79 +115,92 @@ const Dashboard = () => {
         setExpandedHabit(expandedHabit === id ? null : id);
     };
 
+    if (loading) {
+        return <div></div>;
+    }
     return (
-        <div className="container mx-auto p-5 space-y-4">
-            <div className="flex justify-between items-center mb-4">
-                <h1 className="text-4xl font-bold">{username}'s habits</h1>
-                <Button variant="link" onClick={() => window.location.href = '/'}>
-                    Home
+        <div className="container mx-auto p-4">
+            <div className="flex justify-between items-center mb-6">
+                <h1 className="text-2xl font-bold">Habit Dashboard</h1>
+                <Button variant={'outline'}
+                    onClick={() => window.location.href = '/new-habit'}>
+                    <Plus /> Add new habit
                 </Button>
             </div>
-            <div className="flex flex-wrap -mx-2">
-                {habits.map((habit) => (
-                    <div key={habit.id} className="w-full sm:w-1/2 lg:w-1/3 px-2 mb-4">
-                        <Collapsible
-                            open={expandedHabit === habit.id}
-                            onOpenChange={() => toggleHabit(habit.id)}
-                        >
-                            <Card>
-                                <CardHeader>
-                                    <div className="flex justify-between items-center">
-                                        <CardTitle>{habit.name}</CardTitle>
-                                        <CollapsibleTrigger asChild>
-                                            <Button variant="ghost" size="sm">
-                                                {expandedHabit === habit.id ? <ChevronUp /> : <ChevronDown />}
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                {Array.from({ length: 3 }).map((_, colIndex) => (
+                    <div key={colIndex} className="space-y-4">
+                        {Array.from({ length: Math.ceil(habits.length / 3) }).map((_, rowIndex) => {
+                            const habitIndex = rowIndex * 3 + colIndex;
+                            const habit = habits[habitIndex];
+                            if (!habit) return null;
+
+                            return (
+                                <Collapsible
+                                    key={habit.id}
+                                    open={expandedHabit === habit.id}
+                                    onOpenChange={() => toggleHabit(habit.id)}
+                                >
+                                    <Card>
+                                        <CardHeader>
+                                            <div className="flex justify-between items-center">
+                                                <CardTitle>{habit.name}</CardTitle>
+                                                <CollapsibleTrigger asChild>
+                                                    <Button variant="ghost" size="sm">
+                                                        {expandedHabit === habit.id ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
+                                                    </Button>
+                                                </CollapsibleTrigger>
+                                            </div>
+                                            <CardDescription>
+                                                {habit.completedDays}/{habit.totalDays} days, {Math.round((habit.completedDays / habit.totalDays) * 100)}% done
+                                            </CardDescription>
+                                            <Progress value={(habit.completedDays / habit.totalDays) * 100} className="w-full mt-2" />
+                                        </CardHeader>
+                                        <CollapsibleContent>
+                                            <CardContent>
+                                                <p className="text-sm text-muted-foreground mb-4">{habit.description}</p>
+                                                <div className="grid grid-cols-2 gap-4 mb-4">
+                                                    <div className="bg-secondary p-2 rounded-md">
+                                                        <p className="text-sm font-medium">Score</p>
+                                                        <p className="text-2xl font-bold">{habit.score}</p>
+                                                    </div>
+                                                    <div className="bg-secondary p-2 rounded-md">
+                                                        <p className="text-sm font-medium">Streak</p>
+                                                        <p className="text-2xl font-bold">{habit.streak}</p>
+                                                    </div>
+                                                    <div className="bg-secondary p-2 rounded-md">
+                                                        <p className="text-sm font-medium">Record</p>
+                                                        <p className="text-2xl font-bold">{habit.record}</p>
+                                                    </div>
+                                                    <div className="bg-secondary p-2 rounded-md">
+                                                        <p className="text-sm font-medium">Avg.</p>
+                                                        <p className="text-2xl font-bold">{habit.average}%</p>
+                                                    </div>
+                                                </div>
+                                                <div className="bg-secondary p-2 rounded-md mb-4">
+                                                    <p className="text-sm font-medium">Weekly Trends:</p>
+                                                    <p className="text-sm whitespace-pre-line">{habit.weeklyTrend}</p>
+                                                </div>
+                                                <div>
+                                                    <p className="text-sm font-medium mb-2">Reflections:</p>
+                                                    <Input placeholder="What's on your mind?" />
+                                                </div>
+                                            </CardContent>
+                                        </CollapsibleContent>
+                                        <CardFooter>
+                                            <Button className="w-full">
+                                                <Check className="mr-2 h-4 w-4" /> Check off for today
                                             </Button>
-                                        </CollapsibleTrigger>
-                                    </div>
-                                    <CardDescription>
-                                        {Math.round(habit.progress)}% done
-                                    </CardDescription>
-                                    <Progress value={habit.progress} className="w-full mt-2" />
-                                </CardHeader>
-                                <CollapsibleContent>
-                                    <CardContent>
-                                        <p className="text-sm text-muted-foreground mb-4">{habit.description}</p>
-                                        <div className="grid grid-cols-2 gap-4 mb-4">
-                                            <div className="bg-secondary p-2 rounded-md">
-                                                <p className="text-sm font-medium">Score</p>
-                                                <p className="text-2xl font-bold">{habit.score}</p>
-                                            </div>
-                                            <div className="bg-secondary p-2 rounded-md">
-                                                <p className="text-sm font-medium">Streak</p>
-                                                <p className="text-2xl font-bold">{habit.streak}</p>
-                                            </div>
-                                            <div className="bg-secondary p-2 rounded-md">
-                                                <p className="text-sm font-medium">Record</p>
-                                                <p className="text-2xl font-bold">{habit.record}</p>
-                                            </div>
-                                            <div className="bg-secondary p-2 rounded-md">
-                                                <p className="text-sm font-medium">Avg.</p>
-                                                <p className="text-2xl font-bold">{habit.average}%</p>
-                                            </div>
-                                        </div>
-                                        <div className="bg-secondary p-2 rounded-md mb-4">
-                                            <p className="text-sm font-medium">Weekly Trends:</p>
-                                            <p className="text-sm whitespace-pre-line">{habit.weeklyTrend}</p>
-                                        </div>
-                                        <div>
-                                            <p className="text-sm font-medium mb-2">Reflections:</p>
-                                            <Input placeholder="What's on your mind?" />
-                                        </div>
-                                    </CardContent>
-                                </CollapsibleContent>
-                                <CardFooter>
-                                    <Button className="w-full">
-                                        <Check className="mr-2 h-4 w-4" /> Check off for today
-                                    </Button>
-                                </CardFooter>
-                            </Card>
-                        </Collapsible>
+                                        </CardFooter>
+                                    </Card>
+                                </Collapsible>
+                            );
+                        })}
                     </div>
                 ))}
             </div>
+
         </div>
     );
 };
-
 export default Dashboard;
