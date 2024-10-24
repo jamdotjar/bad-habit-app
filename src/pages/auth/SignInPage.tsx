@@ -6,7 +6,8 @@ import { Button } from "@/components/ui/button";
 import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@radix-ui/react-label";
-import { GoogleLoginButton, GithubLoginButton } from "@/components/ui/LoginButtons"; // Adjust the import path as necessary
+import { GoogleLoginButton, GithubLoginButton } from "@/components/LoginButtons"; // Adjust the import path as necessary
+import { Separator } from "@/components/ui/separator";
 
 const SignInPage = () => {
   const { session } = useSession();
@@ -82,6 +83,7 @@ const SignInPage = () => {
             </div>
             <Button type="submit" className="w-full">Sign In</Button>
           </form>
+          <Separator className="my-4" />
           <div className="mt-4 space-y-2">
             <GithubLoginButton onClick={signInWithGitHub} className="w-full" />
             <GoogleLoginButton onClick={signInWithGoogle} className="w-full" />

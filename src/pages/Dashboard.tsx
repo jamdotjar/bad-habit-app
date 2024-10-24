@@ -1,11 +1,13 @@
 import supabase from '@/supabase';
 import { useEffect, useState } from 'react';
-import { ChevronDown, ChevronUp, Check, Plus } from 'lucide-react';
+import { ChevronDown, ChevronUp, Plus } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 import { Input } from '@/components/ui/input';
+import CheckinButton from '@/components/CheckinButton';
+import { Link } from 'react-router-dom';
 
 const Dashboard = () => {
     const [username, setUsername] = useState<string | undefined>();
@@ -95,9 +97,18 @@ const Dashboard = () => {
         <div className="container mx-auto p-4">
             <div className="flex justify-between items-center mb-6">
                 <h1 className="text-2xl font-bold">{username}'s Habit Dashboard</h1>
-                <Button variant="outline">
-                    <Plus className="mr-2 h-4 w-4" /> Add New Habit
-                </Button>
+                <div className="flex space-x-4">
+                    <Link to="/">
+                        <Button variant="link">
+                            Home
+                        </Button>
+                    </Link>
+                    <Link to="/new-habit">
+                        <Button variant="outline">
+                            <Plus className="mr-2 h-4 w-4" /> Add New Habit
+                        </Button>
+                    </Link>
+                </div>
             </div>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                 {Array.from({ length: columns }).map((_, colIndex) => (
@@ -160,9 +171,7 @@ const Dashboard = () => {
                                             </CardContent>
                                         </CollapsibleContent>
                                         <CardFooter>
-                                            <Button className="w-full">
-                                                <Check className="mr-2 h-4 w-4" /> Check off for today
-                                            </Button>
+                                            <CheckinButton habitId={habit.id} />
                                         </CardFooter>
                                     </Card>
                                 </Collapsible>
